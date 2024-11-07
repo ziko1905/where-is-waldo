@@ -1,0 +1,12 @@
+{
+  "name": "where-is-waldo",
+  "version": "1.0.0",
+  "description": "Where is Waldo like game built on top of Express and React. Backend is tested with supertest using RESTful arhitecture",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
