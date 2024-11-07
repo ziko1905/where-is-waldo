@@ -4,12 +4,19 @@
   "description": "Where is Waldo like game built on top of Express and React. Backend is tested with supertest using RESTful arhitecture",
   "main": "index.js",
   "workspaces": [
-    "frontend", "backend"
+    "frontend",
+    "backend"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.4"
+  }
 }
