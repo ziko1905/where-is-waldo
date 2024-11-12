@@ -1,14 +1,20 @@
 import { useState } from "react";
 import "./App.css";
 import Photo from "./components/Photo";
+import TargetingBox from "./components/TargetingBox";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [selectionToggle, setSelectionToggle] = useState(false);
+
+  function handlePhotoClick(event) {
+    setSelectionToggle((toggle) => !toggle);
+  }
 
   return (
     <>
       <h1>Where's Waldo?</h1>
-      <Photo />
+      <Photo handleClick={handlePhotoClick} />
+      {selectionToggle && <TargetingBox />}
     </>
   );
 }
