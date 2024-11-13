@@ -6,13 +6,13 @@ import TargetingBox from "./components/TargetingBox";
 function App() {
   const [selectionToggle, setSelectionToggle] = useState(false);
 
-  function handlePhotoClick(event) {
+  function handlePhotoClick() {
     setSelectionToggle((toggle) => !toggle);
   }
 
   return (
     <>
-      <h1>Where's Waldo?</h1>
+      <h1>Where&apos;s Waldo?</h1>
       <Photo handleClick={handlePhotoClick} />
       {selectionToggle && <TargetingBox />}
     </>
