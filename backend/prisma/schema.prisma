@@ -14,18 +14,23 @@ datasource db {
 }
 
 model Session {
-  id        String   @id
-  sid       String   @unique
+  id        String      @id
+  sid       String      @unique
   data      String
   expiresAt DateTime
+  // round storing for each player
+  username  String      @default("Anonymus")
+  charsLeft Character[]
+  time      Int?
 }
 
 model Character {
-  name      String @unique
-  id        String @id @default(uuid())
+  name      String    @unique
+  id        String    @id @default(uuid())
   // All position numbers are representing percentages
   positionL Float
   positionT Float
   widthPer  Float
   heightPer Float
+  Session   Session[]
 }
