@@ -13,10 +13,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
+
 model Character {
   name      String @unique
   id        String @id @default(uuid())
-  // All position numbers are representing precentage
+  // All position numbers are representing percentages
   positionL Float
   positionT Float
   widthPer  Float
