@@ -17,8 +17,8 @@ model Character {
   name      String @unique
   id        String @id @default(uuid())
   // All position numbers are representing precentage
-  positionL Int
-  positionT Int
-  widthPer  Int
-  heightPer Int
+  positionL Float
+  positionT Float
+  widthPer  Float
+  heightPer Float
 }
