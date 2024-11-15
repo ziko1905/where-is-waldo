@@ -12,6 +12,7 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@quixo3/prisma-session-store": "^3.1.13",
+    "cors": "^2.8.5",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
     "passport": "^0.7.0"

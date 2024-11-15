@@ -2,12 +2,14 @@ const express = require("express");
 const app = express();
 const searchRouter = require("./routes/searchRouter");
 const expressSession = require("express-session");
-const {
-  prismaSessionStore,
-  PrismaSessionStore,
-} = require("@quixo3/prisma-session-store");
+const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
 const initSessionRound = require("./config/round");
+const cors = require("cors");
+const corsConfig = require("./config/corsConfig");
+
+app.use(cors(corsConfig));
+app.use(express.urlencoded({ extended: false }));
 
 app.use(
   expressSession({
