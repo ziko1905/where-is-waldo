@@ -7,7 +7,7 @@ const {
   PrismaSessionStore,
 } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
-const passport = require("passport");
+const initSessionRound = require("./config/round");
 
 app.use(
   expressSession({
@@ -24,7 +24,7 @@ app.use(
     }),
   })
 );
-app.use(passport.session());
+app.use(initSessionRound);
 
 app.use("/search", searchRouter);
 
