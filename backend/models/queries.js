@@ -1,14 +1,14 @@
 const { PrismaClient } = require("@prisma/client");
 const client = new PrismaClient();
 
-async function getDefaultCharsId() {
+async function getDefaultCharsNames() {
   return await client.character.findMany({
     select: {
-      id: true,
+      name: true,
     },
   });
 }
 
 module.exports = {
-  getDefaultCharsId,
+  getDefaultCharsNames,
 };
