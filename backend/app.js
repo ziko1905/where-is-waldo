@@ -8,8 +8,9 @@ const initSessionRound = require("./config/round");
 const cors = require("cors");
 const corsConfig = require("./config/corsConfig");
 
-app.use(cors(corsConfig));
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors(corsConfig));
 
 app.use(
   expressSession({
@@ -29,6 +30,12 @@ app.use(
 app.use(initSessionRound);
 
 app.use("/search", searchRouter);
+
+app.use((err, req, res, next) => {
+  console.log(err);
+
+  req.status(500).send("Internal Server Error");
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Express app listening on port ${PORT}!`));
