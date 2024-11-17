@@ -1,3 +1,4 @@
+/* eslint no-undef: "off" */
 const searchRouter = require("./searchRouter");
 const request = require("supertest");
 const express = require("express");
@@ -197,5 +198,8 @@ describe("/search", () => {
         .expect(400)
         .expect("Request body sent wrong data", done);
     });
+  });
+  describe("ok requests", () => {
+    it();
   });
 });
