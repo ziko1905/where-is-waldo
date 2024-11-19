@@ -34,7 +34,7 @@ describe("selection functionality", () => {
     ).not.toThrow();
   });
 
-  it("dosn't render target box when not clicked", async () => {
+  it("doesn't render target box when not clicked", async () => {
     render(<App />);
     const img = screen.getByAltText(
       "Crowded picture where Waldo and friends are hidden"
@@ -46,7 +46,7 @@ describe("selection functionality", () => {
   });
 
   // Clicked something other than photo
-  it("dosn't render target box when photo not clicked", async () => {
+  it("doesn't render target box when photo not clicked", async () => {
     const user = userEvent.setup();
 
     render(<App />);

@@ -4,7 +4,7 @@ const request = require("supertest");
 const express = require("express");
 const queries = require("../models/queries");
 const app = express();
-const { getNumericProperties } = require("../utils");
+const { getNumericProperties } = require("../utils/utils");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,8 +31,8 @@ beforeEach(async () => {
   defaultBody = {
     photoWidth: 400,
     photoHeight: 200,
-    positionX: 0,
-    positionY: 10,
+    positionX: 10,
+    positionY: 20,
     selected: await queries
       .getDefaultCharsNames()
       .then((response) => response[0].name),
@@ -40,8 +40,8 @@ beforeEach(async () => {
 });
 
 describe("/search", () => {
-  describe("bad requests", () => {
-    it("bad request on empty sends", (done) => {
+  describe("bad response", () => {
+    it("empty sends", (done) => {
       request(app)
         .post("/search")
         .send()
@@ -49,7 +49,7 @@ describe("/search", () => {
         .expect("Request body shouldn't be empty", done);
     });
 
-    it("bad request on missing body photoWidth data", async () => {
+    it("missing body photoWidth data", async () => {
       delete defaultBody.photoWidth;
       const response = await request(app)
         .post("/search")
@@ -60,7 +60,7 @@ describe("/search", () => {
       expect(response.text).toEqual("Request body missing data");
     });
 
-    it("bad request on missing body photoHeight data", async () => {
+    it("missing body photoHeight data", async () => {
       delete defaultBody.photoHeight;
       const response = await request(app)
         .post("/search")
@@ -71,7 +71,7 @@ describe("/search", () => {
       expect(response.text).toEqual("Request body missing data");
     });
 
-    it("bad request on missing body positionX data", async () => {
+    it("missing body positionX data", async () => {
       delete defaultBody.positionX;
       const response = await request(app)
         .post("/search")
@@ -82,7 +82,7 @@ describe("/search", () => {
       expect(response.text).toEqual("Request body missing data");
     });
 
-    it("bad request on missing body positionY data", async () => {
+    it("missing body positionY data", async () => {
       delete defaultBody.positionY;
       const response = await request(app)
         .post("/search")
@@ -93,7 +93,7 @@ describe("/search", () => {
       expect(response.text).toEqual("Request body missing data");
     });
 
-    it("bad request on missing body selected data", async () => {
+    it("missing body selected data", async () => {
       delete defaultBody.selected;
       const response = await request(app)
         .post("/search")
@@ -104,7 +104,7 @@ describe("/search", () => {
       expect(response.text).toEqual("Request body missing data");
     });
 
-    it("bad request on missing multiple body data", async () => {
+    it("missing multiple body data", async () => {
       delete defaultBody.photoHeight;
       delete defaultBody.positionX;
       delete defaultBody.selected;
@@ -117,7 +117,7 @@ describe("/search", () => {
       expect(response.text).toEqual("Request body missing data");
     });
 
-    it("bad request on body photoWidth being 0", async () => {
+    it("body photoWidth being 0", async () => {
       const response = await request(app)
         .post("/search")
         .set("Accept", "application/json")
@@ -127,7 +127,7 @@ describe("/search", () => {
       expect(response.text).toEqual("Request body sent wrong data");
     });
 
-    it("bad request on body photoHeight being 0", async () => {
+    it("body photoHeight being 0", async () => {
       const response = await request(app)
         .post("/search")
         .set("Accept", "application/json")
@@ -138,7 +138,7 @@ describe("/search", () => {
     });
 
     Object.keys(getNumericProperties(defaultBody)).forEach((key) => {
-      it(`bad request on negative body ${key}`, async () => {
+      it(`negative body ${key}`, async () => {
         const response = await request(app)
           .post("/search")
           .set("Accept", "application/json")
@@ -149,7 +149,7 @@ describe("/search", () => {
       });
     });
 
-    it("bad request on positionX not being in range", (done) => {
+    it("positionX not being in range", (done) => {
       request(app)
         .post("/search")
         .send({ ...defaultBody, positionX: 450, photoWidth: 400 })
@@ -159,7 +159,17 @@ describe("/search", () => {
         .expect("Request body sent wrong data", done);
     });
 
-    it("bad request on non existing character selected", (done) => {
+    it("positionY not being in range", (done) => {
+      request(app)
+        .post("/search")
+        .send({ ...defaultBody, positionY: 350, photoHeight: 200 })
+        .set("Accept", "application/json")
+        .expect("Content-Type", /text/)
+        .expect(400)
+        .expect("Request body sent wrong data", done);
+    });
+
+    it("non existing character selected", (done) => {
       request(app)
         .post("/search")
         .send({ ...defaultBody, selected: "NotInDbChar" })
@@ -169,7 +179,7 @@ describe("/search", () => {
         .expect("Request body sent wrong data", done);
     });
 
-    it("bad request on body selected being falsy (false)", (done) => {
+    it("body selected being falsy (false)", (done) => {
       request(app)
         .post("/search")
         .send({ ...defaultBody, selected: false })
@@ -179,7 +189,7 @@ describe("/search", () => {
         .expect("Request body sent wrong data", done);
     });
 
-    it("bad request on body selected being falsy (null)", (done) => {
+    it("body selected being falsy (null)", (done) => {
       request(app)
         .post("/search")
         .send({ ...defaultBody, selected: null })
@@ -189,7 +199,7 @@ describe("/search", () => {
         .expect("Request body sent wrong data", done);
     });
 
-    it(`bad request on body selected being falsy ("")`, (done) => {
+    it(`body selected being falsy ("")`, (done) => {
       request(app)
         .post("/search")
         .send({ ...defaultBody, selected: null })
@@ -199,7 +209,43 @@ describe("/search", () => {
         .expect("Request body sent wrong data", done);
     });
   });
-  describe("ok requests", () => {
-    it();
+  describe("ok response", () => {
+    it("missed search attempt", (done) => {
+      request(app)
+        .post("/search")
+        .send({ ...defaultBody })
+        .set("Accept", "application/json")
+        .expect(200)
+        .then(async () => {
+          const response = await request(app).get("/search");
+          expect(response.status).toBe(200);
+          expect(response.body).toEqual(await queries.getDefaultCharsNames());
+          done();
+        });
+    });
+
+    it("positionX being 0", (done) => {
+      request(app)
+        .post("/search")
+        .send({ ...defaultBody, positionX: 0 })
+        .set("Accept", "application/json")
+        .expect(200)
+        .end((err) => {
+          if (err) return done(err);
+          return done();
+        });
+    });
+
+    it("positionY being 0", (done) => {
+      request(app)
+        .post("/search")
+        .send({ ...defaultBody, positionY: 0 })
+        .set("Accept", "application/json")
+        .expect(200)
+        .end((err) => {
+          if (err) return done(err);
+          return done();
+        });
+    });
   });
 });
