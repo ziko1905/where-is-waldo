@@ -1,19 +1,14 @@
 /* eslint no-undef: "off" */
 const { getPixelIntervals, validateSearch } = require("./positionSearch");
 
-let mockPercentages = {
-  posT: 50,
-  posL: 50,
-  widthPer: 10,
-  heightPer: 10,
-};
+let mockPercentages;
 
 let mockPhotoSize;
 
 function resetMockValues() {
   mockPercentages = {
-    posT: 50,
     posL: 50,
+    posT: 50,
     widthPer: 10,
     heightPer: 10,
   };

@@ -20,8 +20,8 @@ class InvalidValueError extends Error {
 }
 
 function getPixelIntervals(
-  posT,
   posL,
+  posT,
   widthPer,
   heightPer,
   photoWidth,
@@ -32,8 +32,8 @@ function getPixelIntervals(
   }
 
   const errMsgs = {
-    0: "top position",
-    1: "left position",
+    0: "left position",
+    1: "top position",
     2: "width percentage",
     3: "height percentage",
     4: "photo width",
