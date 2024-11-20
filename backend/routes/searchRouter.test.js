@@ -298,7 +298,7 @@ describe("/search", () => {
             defaultCorrectGuesses[defaultBody.selected].deltaY / 2,
         })
         .set("Accept", "application/json")
-        .expect(200)
+        .expect(201)
         .then(async () => {
           const response = await agent.get("/search");
           expect(response.status).toBe(200);
@@ -341,7 +341,7 @@ describe("/search", () => {
             defaultCorrectGuesses[defaultBody.selected].deltaY / 2,
         })
         .set("Accept", "application/json")
-        .expect(200)
+        .expect(201)
         .then(async () => {
           const response = await agent.get("/search");
           expect(response.status).toBe(200);
@@ -376,9 +376,26 @@ describe("/search", () => {
     });
   });
 
-  // describe("accepted response", () => {
-  //   it("accepted after all characters found", () => {
-  //     request(app.post());
-  //   });
-  // });
+  describe("accepted response", () => {
+    it("accepted after all characters found", async () => {
+      const agent = request.agent(app);
+      while (defaultCharsNames.length) {
+        const charName = defaultCharsNames.pop();
+        const response = await agent
+          .post("/search")
+          .send({
+            ...defaultBody,
+            selected: charName,
+            positionX:
+              defaultCorrectGuesses[charName].positionX0 +
+              defaultCorrectGuesses[charName].deltaX / 2,
+            positionY:
+              defaultCorrectGuesses[charName].positionY0 +
+              defaultCorrectGuesses[charName].deltaY / 2,
+          })
+          .set("Accept", "application/json");
+        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
+      }
+    });
+  });
 });

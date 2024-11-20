@@ -59,8 +59,10 @@ module.exports.postSearchedChars = asyncHandler(async (req, res) => {
     req.session.charactersLeft = req.session.charactersLeft.filter(
       (ele) => ele.name != req.body.selected
     );
+  } else {
+    return res.status(200).send();
   }
-  res.status(200).send();
+  res.status(req.session.charactersLeft.length ? 201 : 202).send();
 });
 
 module.exports.getSearchLeft = async (req, res) => {
