@@ -4,10 +4,32 @@ const request = require("supertest");
 const express = require("express");
 const queries = require("../models/queries");
 const app = express();
+const expressSession = require("express-session");
+const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
+const { PrismaClient } = require("@prisma/client");
+const initSessionRound = require("../config/round");
 const { getNumericProperties } = require("../utils/utils");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  expressSession({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 2,
+    },
+    store: new PrismaSessionStore(new PrismaClient(), {
+      checkPeriod: 2 * 60 * 1000,
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
+  })
+);
+app.use(initSessionRound);
+
 app.use("/search", searchRouter);
 
 // Used for logging 500's
@@ -17,26 +39,41 @@ app.use((err, req, res, next) => {
   res.status(500).send("Internal Server Error");
 });
 
-let defaultBody = {
-  photoWidth: 400,
-  photoHeight: 200,
-  positionX: 0,
-  positionY: 10,
-  // Not fetched like in beforeEach
-  selected: "Waldo",
-};
+let defaultBody;
+let defaultCharsNames;
+const defaultCorrectGuesses = {};
 
 beforeEach(async () => {
   // Needed for reset after each test
+  defaultCharsNames = await queries
+    .getDefaultCharsNames()
+    .then((response) => response.map((ele) => ele.name));
   defaultBody = {
     photoWidth: 400,
     photoHeight: 200,
-    positionX: 10,
-    positionY: 20,
-    selected: await queries
-      .getDefaultCharsNames()
-      .then((response) => response[0].name),
+    positionX: 0,
+    positionY: 10,
+    selected: defaultCharsNames[0],
   };
+
+  const charactersData = await queries.getCharacters();
+  // default characters data used for not having to manually search each characters intervals
+  for (const char of charactersData) {
+    defaultCorrectGuesses[char.name] = {
+      positionX0: (char.positionL / 100) * defaultBody.photoWidth,
+      positionY0: (char.positionT / 100) * defaultBody.photoHeight,
+      positionX1: null,
+      positionY1: null,
+      deltaX: (char.widthPer / 100) * defaultBody.photoWidth,
+      deltaY: (char.heightPer / 100) * defaultBody.photoHeight,
+    };
+    defaultCorrectGuesses[char.name].positionX1 =
+      defaultCorrectGuesses[char.name].positionX0 +
+      defaultCorrectGuesses[char.name].deltaX;
+    defaultCorrectGuesses[char.name].positionY1 =
+      defaultCorrectGuesses[char.name].positionY0 +
+      defaultCorrectGuesses[char.name].deltaY;
+  }
 });
 
 describe("/search", () => {
@@ -210,8 +247,8 @@ describe("/search", () => {
     });
   });
   describe("ok response", () => {
-    it("missed search attempt", (done) => {
-      request(app)
+    it("missed search attempt", () => {
+      return request(app)
         .post("/search")
         .send({ ...defaultBody })
         .set("Accept", "application/json")
@@ -220,7 +257,6 @@ describe("/search", () => {
           const response = await request(app).get("/search");
           expect(response.status).toBe(200);
           expect(response.body).toEqual(await queries.getDefaultCharsNames());
-          done();
         });
     });
 
@@ -247,5 +283,102 @@ describe("/search", () => {
           return done();
         });
     });
+
+    it("decrement lists of remaining characters on get req", () => {
+      const agent = request.agent(app);
+      return agent
+        .post("/search")
+        .send({
+          ...defaultBody,
+          positionX:
+            defaultCorrectGuesses[defaultBody.selected].positionX0 +
+            defaultCorrectGuesses[defaultBody.selected].deltaX / 2,
+          positionY:
+            defaultCorrectGuesses[defaultBody.selected].positionY0 +
+            defaultCorrectGuesses[defaultBody.selected].deltaY / 2,
+        })
+        .set("Accept", "application/json")
+        .expect(200)
+        .then(async () => {
+          const response = await agent.get("/search");
+          expect(response.status).toBe(200);
+
+          const event = (element) => element.name === defaultBody.selected;
+          expect(response.body.some(event)).toBe(false);
+        });
+    });
+
+    it("not decrement list of remaining characters on get req", () => {
+      const agent = request.agent(app);
+      return agent
+        .post("/search")
+        .send({
+          ...defaultBody,
+        })
+        .set("Accept", "application/json")
+        .expect(200)
+        .then(async () => {
+          const response = await agent.get("/search");
+          expect(response.status).toBe(200);
+
+          const event = (element) => element.name === defaultBody.selected;
+          expect(response.body.some(event)).toBe(true);
+        });
+    });
+
+    it("decrement list of remaining characters on get req (other character)", () => {
+      const agent = request.agent(app);
+      defaultBody.selected = defaultCharsNames[1];
+      return agent
+        .post("/search")
+        .send({
+          ...defaultBody,
+          positionX:
+            defaultCorrectGuesses[defaultBody.selected].positionX0 +
+            defaultCorrectGuesses[defaultBody.selected].deltaX / 2,
+          positionY:
+            defaultCorrectGuesses[defaultBody.selected].positionY0 +
+            defaultCorrectGuesses[defaultBody.selected].deltaY / 2,
+        })
+        .set("Accept", "application/json")
+        .expect(200)
+        .then(async () => {
+          const response = await agent.get("/search");
+          expect(response.status).toBe(200);
+
+          const event = (element) => element.name === defaultBody.selected;
+          expect(response.body.some(event)).toBe(false);
+        });
+    });
+
+    it("not decrement list of remaining characters on get req (good coordinates for wrong character)", () => {
+      const agent = request.agent(app);
+      return agent
+        .post("/search")
+        .send({
+          ...defaultBody,
+          positionX:
+            defaultCorrectGuesses[defaultCharsNames[1]].positionX0 +
+            defaultCorrectGuesses[defaultCharsNames[1]].deltaX / 2,
+          positionY:
+            defaultCorrectGuesses[defaultCharsNames[1]].positionY0 +
+            defaultCorrectGuesses[defaultCharsNames[1]].deltaY / 2,
+        })
+        .set("Accept", "application/json")
+        .expect(200)
+        .then(async () => {
+          const response = await agent.get("/search");
+          expect(response.status).toBe(200);
+
+          const event = (element) => element.name === defaultBody.selected;
+          expect(response.body.some(event)).toBe(true);
+        });
+    });
   });
+
+  // describe("accepted response", () => {
+  //   it("accepted after all characters found", () => {
+  //     request(app.post());
+  //   });
+  // });
 });

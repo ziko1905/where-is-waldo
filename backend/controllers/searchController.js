@@ -1,6 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const { getNumericProperties } = require("../utils/utils");
 const queries = require("../models/queries");
+const {
+  getPixelIntervals,
+  validateSearch,
+} = require("../utils/positionSearch");
 
 module.exports.postSearchedChars = asyncHandler(async (req, res) => {
   if (!Object.keys(req.body).length) {
@@ -43,8 +47,22 @@ module.exports.postSearchedChars = asyncHandler(async (req, res) => {
     return res.status(400).send("Request body sent wrong data");
   }
 
-  res.status(200).send("TO BE IMPLEMENTED");
+  const pixelIntervals = getPixelIntervals(
+    ...(await queries.getPositionData(req.body.selected)),
+    req.body.photoWidth,
+    req.body.photoHeight
+  );
+
+  if (
+    validateSearch(...pixelIntervals, req.body.positionX, req.body.positionY)
+  ) {
+    req.session.charactersLeft = req.session.charactersLeft.filter(
+      (ele) => ele.name != req.body.selected
+    );
+  }
+  res.status(200).send();
 });
 
-module.exports.getSearchLeft = async (req, res) =>
-  res.status(200).send(await queries.getDefaultCharsNames());
+module.exports.getSearchLeft = async (req, res) => {
+  return res.status(200).send(req.session.charactersLeft);
+};

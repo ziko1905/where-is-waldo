@@ -9,6 +9,21 @@ async function getDefaultCharsNames() {
   });
 }
 
+async function getCharacters() {
+  return await client.character.findMany({});
+}
+
+async function getPositionData(charName) {
+  const data = await client.character.findFirst({
+    where: {
+      name: charName,
+    },
+  });
+  return [data.positionL, data.positionT, data.widthPer, data.heightPer];
+}
+
 module.exports = {
   getDefaultCharsNames,
+  getCharacters,
+  getPositionData,
 };
