@@ -1,8 +1,8 @@
 const { Router } = require("express");
 const router = Router();
+const searchController = require("../controllers/searchController");
 
-router.get("/", (req, res) => {
-  res.send("router working");
-});
+router.post("/", searchController.postSearchedChars);
+router.get("/", searchController.getSearchLeft);
 
 module.exports = router;

@@ -2,12 +2,15 @@ const express = require("express");
 const app = express();
 const searchRouter = require("./routes/searchRouter");
 const expressSession = require("express-session");
-const {
-  prismaSessionStore,
-  PrismaSessionStore,
-} = require("@quixo3/prisma-session-store");
+const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
-const passport = require("passport");
+const initSessionRound = require("./config/round");
+const cors = require("cors");
+const corsConfig = require("./config/corsConfig");
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cors(corsConfig));
 
 app.use(
   expressSession({
@@ -24,9 +27,15 @@ app.use(
     }),
   })
 );
-app.use(passport.session());
+app.use(initSessionRound);
 
 app.use("/search", searchRouter);
+
+app.use((err, req, res, next) => {
+  console.log(err);
+
+  req.status(500).send("Internal Server Error");
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Express app listening on port ${PORT}!`));
