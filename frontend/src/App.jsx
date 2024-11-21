@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Photo from "./components/Photo";
 import TargetingBox from "./components/TargetingBox";
+import { config } from "./Constants";
 
 function App() {
   const [selectionToggle, setSelectionToggle] = useState(false);
@@ -13,8 +14,10 @@ function App() {
   return (
     <>
       <h1>Where&apos;s Waldo?</h1>
-      <Photo handleClick={handlePhotoClick} />
-      {selectionToggle && <TargetingBox />}
+      <Photo
+        handleClick={handlePhotoClick}
+        targetingBox={selectionToggle && <TargetingBox />}
+      />
     </>
   );
 }

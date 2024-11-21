@@ -1,9 +1,10 @@
 #img-div {
-    display: grid;
-    justify-content: center;
+  position: relative;
+  display: grid;
+  justify-content: center;
 }
 
 img {
-    object-fit: cover;
-    width: 100%;
+  object-fit: cover;
+  width: 100%;
 }

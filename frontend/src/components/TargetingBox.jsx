@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { config } from "../Constants";
+import "../styles/components/TargetingBox.css";
+import TargetPhoto from "./partials/TargetPhoto";
 
 function TargetingBox() {
   const [charactersLeft, setCharactersLeft] = useState([]);
 
   useEffect(() => {
-    fetch(`${config.url.BASE_URL}/finds`)
+    fetch(`${config.url.BASE_URL}/search`)
       .then((response) => {
         return response.json();
       })
@@ -17,10 +19,22 @@ function TargetingBox() {
 
   return (
     <>
-      <div aria-label="Selection box for characters found">
+      <div
+        className="targeting-box"
+        aria-label="Selection box for characters found"
+      >
         {charactersLeft.map((char) => (
-          <div key={char.id} data-testid={"character-left"}>
-            <span key={char.id} aria-label="Character name">
+          <div
+            className="char-target-box"
+            key={`${char.name}-div`}
+            data-testid={"character-left"}
+          >
+            <TargetPhoto target={char.name} />
+            <span
+              className="char-name"
+              key={`${char.name}-span`}
+              aria-label="Character name"
+            >
               {char.name}
             </span>
           </div>
