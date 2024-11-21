@@ -397,5 +397,60 @@ describe("/search", () => {
         expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
       }
     });
+
+    it("send time after all characters found", async () => {
+      const agent = request.agent(app);
+      while (defaultCharsNames.length) {
+        const charName = defaultCharsNames.pop();
+        const response = await agent
+          .post("/search")
+          .send({
+            ...defaultBody,
+            selected: charName,
+            positionX:
+              defaultCorrectGuesses[charName].positionX0 +
+              defaultCorrectGuesses[charName].deltaX / 2,
+            positionY:
+              defaultCorrectGuesses[charName].positionY0 +
+              defaultCorrectGuesses[charName].deltaY / 2,
+          })
+          .set("Accept", "application/json");
+        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
+        expect(response.body.time).toBeDefined();
+        expect(response.body.time).not.toBeNaN();
+      }
+    });
+
+    it("send time after all characters found (simulating time)", async () => {
+      const agent = request.agent(app);
+      const countS = defaultCharsNames.length;
+      let i = 0;
+      // Creating session
+      let response = await agent.get("");
+      while (defaultCharsNames.length) {
+        const charName = defaultCharsNames.pop();
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1000);
+        });
+        response = await agent
+          .post("/search")
+          .send({
+            ...defaultBody,
+            selected: charName,
+            positionX:
+              defaultCorrectGuesses[charName].positionX0 +
+              defaultCorrectGuesses[charName].deltaX / 2,
+            positionY:
+              defaultCorrectGuesses[charName].positionY0 +
+              defaultCorrectGuesses[charName].deltaY / 2,
+          })
+          .set("Accept", "application/json");
+
+        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
+      }
+
+      expect(response.body.time).toBeDefined();
+      expect(response.body.time).toBeGreaterThanOrEqual(countS * 1000);
+    });
   });
 });

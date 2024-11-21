@@ -7,6 +7,7 @@ const { PrismaClient } = require("@prisma/client");
 const initSessionRound = require("./config/round");
 const cors = require("cors");
 const corsConfig = require("./config/corsConfig");
+const indexRouter = require("./routes/indexRouter");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -29,6 +30,7 @@ app.use(
 );
 app.use(initSessionRound);
 
+app.use("/", indexRouter);
 app.use("/search", searchRouter);
 
 app.use((err, req, res, next) => {
