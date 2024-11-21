@@ -3,11 +3,13 @@ import { config } from "../Constants";
 import "../styles/components/TargetingBox.css";
 import TargetPhoto from "./partials/TargetPhoto";
 
-function TargetingBox() {
+function TargetingBox({ handleSearchAttempt, handleToggle }) {
   const [charactersLeft, setCharactersLeft] = useState([]);
 
   useEffect(() => {
-    fetch(`${config.url.BASE_URL}/search`)
+    fetch(`${config.url.BASE_URL}/search`, {
+      credentials: "include",
+    })
       .then((response) => {
         return response.json();
       })
@@ -16,6 +18,11 @@ function TargetingBox() {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  function handleSelect(name) {
+    handleSearchAttempt(name);
+    handleToggle();
+  }
 
   return (
     <>
@@ -28,6 +35,7 @@ function TargetingBox() {
             className="char-target-box"
             key={`${char.name}-div`}
             data-testid={"character-left"}
+            onClick={() => handleSelect(char.name)}
           >
             <TargetPhoto target={char.name} />
             <span

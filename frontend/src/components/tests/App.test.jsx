@@ -41,7 +41,7 @@ describe("selection functionality", () => {
     );
 
     expect(() =>
-      screen.getByLabelText("Selection box for characters found")
+      img.getByLabelText("Selection box for characters found")
     ).toThrow();
   });
 

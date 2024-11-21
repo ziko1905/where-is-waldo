@@ -24,5 +24,4 @@ export const mockLeftChars = new CharacterList([
   new Character("Waldo"),
   new Character("Wizard"),
   new Character("Odlaw"),
-  new Character("Woof"),
 ]);
