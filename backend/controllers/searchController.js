@@ -6,47 +6,53 @@ const {
   validateSearch,
 } = require("../utils/positionSearch");
 
-module.exports.postSearchedChars = asyncHandler(async (req, res) => {
-  if (!Object.keys(req.body).length) {
-    return res.status(400).send("Request body shouldn't be empty");
-  }
-  const dataKeys = [
-    "photoWidth",
-    "photoHeight",
-    "positionX",
-    "positionY",
-    "selected",
-  ];
-
-  for (const key of dataKeys) {
-    if (!Object.keys(req.body).includes(key)) {
-      return res.status(400).send("Request body missing data");
+module.exports.postSearchedCharsValidation = asyncHandler(
+  async (req, res, next) => {
+    if (!Object.keys(req.body).length) {
+      return res.status(400).send("Request body shouldn't be empty");
     }
-  }
+    const dataKeys = [
+      "photoWidth",
+      "photoHeight",
+      "positionX",
+      "positionY",
+      "selected",
+    ];
 
-  for (const value of Object.values(getNumericProperties(req.body))) {
-    if (value < 0) {
+    for (const key of dataKeys) {
+      if (!Object.keys(req.body).includes(key)) {
+        return res.status(400).send("Request body missing data");
+      }
+    }
+
+    for (const value of Object.values(getNumericProperties(req.body))) {
+      if (value < 0) {
+        return res.status(400).send("Request body sent wrong data");
+      }
+    }
+
+    if (
+      !req.body.photoWidth ||
+      !req.body.photoHeight ||
+      req.body.positionX > req.body.photoWidth ||
+      req.body.positionY > req.body.photoHeight
+    ) {
       return res.status(400).send("Request body sent wrong data");
     }
-  }
 
-  if (
-    !req.body.photoWidth ||
-    !req.body.photoHeight ||
-    req.body.positionX > req.body.photoWidth ||
-    req.body.positionY > req.body.photoHeight
-  ) {
-    return res.status(400).send("Request body sent wrong data");
-  }
+    if (
+      !(await queries.getDefaultCharsNames())
+        .map((character) => character.name)
+        .includes(req.body.selected)
+    ) {
+      return res.status(400).send("Request body sent wrong data");
+    }
 
-  if (
-    !(await queries.getDefaultCharsNames())
-      .map((character) => character.name)
-      .includes(req.body.selected)
-  ) {
-    return res.status(400).send("Request body sent wrong data");
+    next();
   }
+);
 
+module.exports.postSearchedChars = asyncHandler(async (req, res) => {
   const pixelIntervals = getPixelIntervals(
     ...(await queries.getPositionData(req.body.selected)),
     req.body.photoWidth,
@@ -63,9 +69,12 @@ module.exports.postSearchedChars = asyncHandler(async (req, res) => {
     return res.status(200).send();
   }
 
-  res
-    .status(req.session.charactersLeft.length ? 201 : 202)
-    .send({ time: Date.now() - req.session.timeStart });
+  if (!req.session.charactersLeft.length) {
+    req.session.hasWon = true;
+    req.session.time = Date.now() - req.session.timeStart;
+    return res.status(202).send({ time: Date.now() - req.session.timeStart });
+  }
+  res.status(201).send();
 });
 
 module.exports.getSearchLeft = async (req, res) => {

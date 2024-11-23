@@ -9,6 +9,9 @@ const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
 const initSessionRound = require("../config/round");
 const { getNumericProperties } = require("../utils/utils");
+const convertSID = require("../utils/convertSID");
+const prisma = require("../client");
+require("../prisma/seed");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,7 +24,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 2,
     },
-    store: new PrismaSessionStore(new PrismaClient(), {
+    store: new PrismaSessionStore(prisma, {
       checkPeriod: 2 * 60 * 1000,
       dbRecordIdIsSessionId: true,
       dbRecordIdFunction: undefined,
@@ -74,6 +77,15 @@ beforeEach(async () => {
       defaultCorrectGuesses[char.name].positionY0 +
       defaultCorrectGuesses[char.name].deltaY;
   }
+});
+
+afterAll(async () => {
+  const deletedChars = prisma.character.deleteMany();
+  const deletedSessions = prisma.session.deleteMany();
+
+  await prisma.$transaction([deletedChars, deletedSessions]);
+
+  await prisma.$disconnect();
 });
 
 describe("/search", () => {
@@ -374,14 +386,46 @@ describe("/search", () => {
           expect(response.body.some(event)).toBe(true);
         });
     });
+
+    it("not have session data property hasWon after one correct guess", async () => {
+      const agent = request.agent(app);
+      const response = await agent
+        .post("/search")
+        .send({
+          ...defaultBody,
+          positionX:
+            defaultCorrectGuesses[defaultBody.selected].positionX0 +
+            defaultCorrectGuesses[defaultBody.selected].deltaX / 2,
+          positionY:
+            defaultCorrectGuesses[defaultBody.selected].positionY0 +
+            defaultCorrectGuesses[defaultBody.selected].deltaY / 2,
+        })
+        .set("Accept", "application/json");
+
+      const sid = convertSID(response.headers["set-cookie"]);
+
+      const data = JSON.parse(
+        (
+          await prisma.session.findFirst({
+            where: { sid: sid },
+            select: { data: true },
+          })
+        ).data
+      );
+
+      expect(data.hasWon).toBe(false);
+    });
   });
 
-  describe("accepted response", () => {
-    it("accepted after all characters found", async () => {
-      const agent = request.agent(app);
+  describe("accepted response (all characters found)", () => {
+    let response;
+    let agent;
+    beforeAll(async () => {
+      agent = request.agent(app);
+
       while (defaultCharsNames.length) {
         const charName = defaultCharsNames.pop();
-        const response = await agent
+        response = await agent
           .post("/search")
           .send({
             ...defaultBody,
@@ -394,37 +438,21 @@ describe("/search", () => {
               defaultCorrectGuesses[charName].deltaY / 2,
           })
           .set("Accept", "application/json");
-        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
       }
     });
 
-    it("send time after all characters found", async () => {
-      const agent = request.agent(app);
-      while (defaultCharsNames.length) {
-        const charName = defaultCharsNames.pop();
-        const response = await agent
-          .post("/search")
-          .send({
-            ...defaultBody,
-            selected: charName,
-            positionX:
-              defaultCorrectGuesses[charName].positionX0 +
-              defaultCorrectGuesses[charName].deltaX / 2,
-            positionY:
-              defaultCorrectGuesses[charName].positionY0 +
-              defaultCorrectGuesses[charName].deltaY / 2,
-          })
-          .set("Accept", "application/json");
-        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
-        expect(response.body.time).toBeDefined();
-        expect(response.body.time).not.toBeNaN();
-      }
+    it("be accepted", () => {
+      expect(response.status).toBe(202);
     });
 
-    it("send time after all characters found (simulating time)", async () => {
+    it("send time", () => {
+      expect(response.body.time).toBeDefined();
+      expect(response.body.time).not.toBeNaN();
+    });
+
+    it("send time (simulating time)", async () => {
       const agent = request.agent(app);
       const countS = defaultCharsNames.length;
-      let i = 0;
       // Creating session
       let response = await agent.get("");
       while (defaultCharsNames.length) {
@@ -451,6 +479,77 @@ describe("/search", () => {
 
       expect(response.body.time).toBeDefined();
       expect(response.body.time).toBeGreaterThanOrEqual(countS * 1000);
+    });
+
+    it("set session data hasWon property to true", async () => {
+      const sid = convertSID(response.headers["set-cookie"]);
+
+      const data = JSON.parse(
+        (
+          await prisma.session.findFirstOrThrow({
+            where: { sid: sid },
+            select: { data: true },
+          })
+        ).data
+      );
+
+      expect(data.hasWon).toBe(true);
+    });
+
+    it("have synced sent and request data time", async () => {
+      const sid = convertSID(response.headers["set-cookie"]);
+
+      const data = JSON.parse(
+        (
+          await prisma.session.findFirstOrThrow({
+            where: { sid: sid },
+            select: { data: true },
+          })
+        ).data
+      );
+
+      expect(data.time).toBe(response.body.time);
+    });
+
+    it("have synced sent and request data time (simulating time)", async () => {
+      const agent = request.agent(app);
+      // Creating session
+      let response = await agent.get("");
+      while (defaultCharsNames.length) {
+        const charName = defaultCharsNames.pop();
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1000);
+        });
+
+        response = await agent
+          .post("/search")
+          .send({
+            ...defaultBody,
+            selected: charName,
+            positionX:
+              defaultCorrectGuesses[charName].positionX0 +
+              defaultCorrectGuesses[charName].deltaX / 2,
+            positionY:
+              defaultCorrectGuesses[charName].positionY0 +
+              defaultCorrectGuesses[charName].deltaY / 2,
+          })
+          .set("Accept", "application/json");
+
+        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
+      }
+
+      const sid = convertSID(response.headers["set-cookie"]);
+
+      const data = JSON.parse(
+        (
+          await prisma.session.findFirstOrThrow({
+            where: { sid: sid },
+            select: { data: true },
+          })
+        ).data
+      );
+
+      expect(data.time).toBe(response.body.time);
     });
   });
 });

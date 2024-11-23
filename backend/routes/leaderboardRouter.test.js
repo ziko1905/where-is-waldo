@@ -79,4 +79,8 @@ describe("/leaderboard", () => {
         expect(isAscending(res.body, (ply) => ply.timeMS)).toBe(true);
       });
   });
+
+  // it("Puts player in right position (first position)", () => {
+  //   return request(app);
+  // });
 });
