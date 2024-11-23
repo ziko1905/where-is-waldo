@@ -22,8 +22,23 @@ async function getPositionData(charName) {
   return [data.positionL, data.positionT, data.widthPer, data.heightPer];
 }
 
+async function getLeaderboard(size) {
+  return await client.player.findMany({
+    take: size,
+    orderBy: [
+      {
+        timeMS: "asc",
+      },
+      {
+        name: "desc",
+      },
+    ],
+  });
+}
+
 module.exports = {
   getDefaultCharsNames,
   getCharacters,
   getPositionData,
+  getLeaderboard,
 };

@@ -34,3 +34,9 @@ model Character {
   heightPer Float
   Session   Session[]
 }
+
+model Player {
+  name   String
+  id     String @id @default(uuid())
+  timeMS Int
+}
