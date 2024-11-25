@@ -36,17 +36,6 @@ async function getLeaderboard(size) {
   });
 }
 
-async function updateSessionTime(sessionID, time) {
-  await client.session.update({
-    where: {
-      sid: sessionID,
-    },
-    data: {
-      time: time,
-    },
-  });
-}
-
 async function createPlayer(name, time) {
   await client.player.create({
     data: {
@@ -56,23 +45,10 @@ async function createPlayer(name, time) {
   });
 }
 
-async function getSessionTime(sessionID) {
-  const data = await client.session.findFirst({
-    where: { sid: sessionID },
-    select: {
-      time: true,
-    },
-  });
-
-  return data.time;
-}
-
 module.exports = {
   getDefaultCharsNames,
   getCharacters,
   getPositionData,
   getLeaderboard,
-  updateSessionTime,
   createPlayer,
-  getSessionTime,
 };
