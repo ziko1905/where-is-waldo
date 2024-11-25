@@ -6,7 +6,6 @@ const queries = require("../models/queries");
 const app = express();
 const expressSession = require("express-session");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
-const { PrismaClient } = require("@prisma/client");
 const initSessionRound = require("../config/round");
 const { getNumericProperties } = require("../utils/utils");
 const convertSID = require("../utils/convertSID");
@@ -16,6 +15,12 @@ require("../prisma/seed");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const prismaSesStore = new PrismaSessionStore(prisma, {
+  checkPeriod: 2 * 60 * 1000,
+  dbRecordIdIsSessionId: true,
+  dbRecordIdFunction: undefined,
+});
+
 app.use(
   expressSession({
     secret: process.env.SESSION_SECRET,
@@ -24,18 +29,14 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 2,
     },
-    store: new PrismaSessionStore(prisma, {
-      checkPeriod: 2 * 60 * 1000,
-      dbRecordIdIsSessionId: true,
-      dbRecordIdFunction: undefined,
-    }),
+    store: prismaSesStore,
   })
 );
+
 app.use(initSessionRound);
 
 app.use("/search", searchRouter);
 
-// Used for logging 500's
 app.use((err, req, res, next) => {
   console.log(err);
 
@@ -84,8 +85,7 @@ afterAll(async () => {
   const deletedSessions = prisma.session.deleteMany();
 
   await prisma.$transaction([deletedChars, deletedSessions]);
-
-  await prisma.$disconnect();
+  await prismaSesStore.shutdown();
 });
 
 describe("/search", () => {
@@ -551,6 +551,57 @@ describe("/search", () => {
       );
 
       expect(data.time).toBe(response.body.time);
+    });
+
+    it("have synced sent and db time", async () => {
+      const sid = convertSID(response.headers["set-cookie"]);
+
+      const time = (
+        await prisma.session.findFirstOrThrow({
+          where: { sid: sid },
+          select: { time: true },
+        })
+      ).time;
+      expect(time).toBe(response.body.time);
+    });
+
+    it("have synced sent and db time (simulating time)", async () => {
+      const agent = request.agent(app);
+      // Creating session
+      let response = await agent.get("");
+      while (defaultCharsNames.length) {
+        const charName = defaultCharsNames.pop();
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1000);
+        });
+
+        response = await agent
+          .post("/search")
+          .send({
+            ...defaultBody,
+            selected: charName,
+            positionX:
+              defaultCorrectGuesses[charName].positionX0 +
+              defaultCorrectGuesses[charName].deltaX / 2,
+            positionY:
+              defaultCorrectGuesses[charName].positionY0 +
+              defaultCorrectGuesses[charName].deltaY / 2,
+          })
+          .set("Accept", "application/json");
+
+        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
+      }
+
+      const sid = convertSID(response.headers["set-cookie"]);
+
+      const time = (
+        await prisma.session.findFirstOrThrow({
+          where: { sid: sid },
+          select: { time: true },
+        })
+      ).time;
+
+      expect(time).toBe(response.body.time);
     });
   });
 });

@@ -246,7 +246,14 @@ describe("/leaderboard", () => {
     await resetDefaultPlayers();
   });
 
-  // it("Puts player in right position (first position)", () => {
-  //   return request(app);
-  // });
+  describe("Invalid requests", () => {
+    it("respond with status code of 400 for session that hasn't won", () => {
+      const agent = request.agent(app);
+
+      return agent
+        .post("/leaderboard")
+        .send({ name: "Invalid Player 1" })
+        .expect(400);
+    });
+  });
 });

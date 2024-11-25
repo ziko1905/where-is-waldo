@@ -13,3 +13,8 @@ module.exports.postLeaderboard = asyncHandler(async (req, res) => {
   res.status(200).send();
 });
 
+// module.exports.validatePostPlayer = async (req, res, next) => {
+//   if (!req.session.hasWon) {
+//     return res.status(400).send();
+//   }
+// };
