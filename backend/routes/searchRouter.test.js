@@ -439,6 +439,7 @@ describe("/search", () => {
           })
           .set("Accept", "application/json");
       }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     });
 
     it("be accepted", () => {

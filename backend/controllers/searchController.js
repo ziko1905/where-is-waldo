@@ -72,7 +72,8 @@ module.exports.postSearchedChars = asyncHandler(async (req, res) => {
   if (!req.session.charactersLeft.length) {
     req.session.hasWon = true;
     req.session.time = Date.now() - req.session.timeStart;
-    return res.status(202).send({ time: Date.now() - req.session.timeStart });
+    await queries.updateSessionTime(req.sessionID, req.session.time);
+    return res.status(202).send({ time: req.session.time });
   }
   res.status(201).send();
 });
