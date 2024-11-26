@@ -8,5 +8,6 @@ router.post(
   leaderboardController.validatePostPlayer,
   leaderboardController.postLeaderboard
 );
+router.get("/won", leaderboardController.getHasWon);
 
 module.exports = router;
