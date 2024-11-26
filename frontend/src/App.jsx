@@ -3,6 +3,7 @@ import "./App.css";
 import Photo from "./components/Photo";
 import markerSrc from "./assets/cross-mark.svg";
 import TargetingBox from "./components/TargetingBox";
+import Leaderboard from "./components/Leaderboard";
 import { config } from "./Constants";
 
 const markerStyle = {
@@ -31,7 +32,7 @@ function App() {
         }
       })
       .then((response) => {
-        if (response.hasWon) isSaved(false);
+        if (response.isSaved) setIsSaved(false);
       })
       .catch((err) => {
         console.log(err.message);
@@ -39,6 +40,7 @@ function App() {
   }, []);
 
   function handlePhotoClick(event) {
+    if (hasWon) return;
     handleTBToggle();
     const positions = event.target.getBoundingClientRect();
     sendData.current = {
@@ -54,6 +56,11 @@ function App() {
   }
 
   function handleSearchAttempt(selected) {
+    if (!selected) {
+      setHasWon(true);
+      return;
+    }
+
     sendData.current.selected = selected;
     fetch(`${config.url.BASE_URL}/search`, {
       mode: "cors",
@@ -71,13 +78,13 @@ function App() {
       }
 
       if (res.status == 202) {
-        setHasWon(true);
+        if (hasWon) setHasWon(true);
       }
     });
   }
 
   function handleTBToggle() {
-    setSelectionToggle((toggle) => !toggle);
+    setSelectionToggle(!selectionToggle);
   }
 
   function handleMarkerSet({ positionL, positionT }) {
@@ -113,7 +120,7 @@ function App() {
         }
         marks={markers}
       />
-      {hasWon && console.log("PLAYER HAS WON")}
+      {hasWon && <Leaderboard />}
     </>
   );
 }

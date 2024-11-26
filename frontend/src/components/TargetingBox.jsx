@@ -6,6 +6,11 @@ import TargetPhoto from "./partials/TargetPhoto";
 function TargetingBox({ handleSearchAttempt, handleToggle }) {
   const [charactersLeft, setCharactersLeft] = useState([]);
 
+  function handleSelect(name) {
+    handleSearchAttempt(name);
+    handleToggle();
+  }
+
   useEffect(() => {
     fetch(`${config.url.BASE_URL}/search`, {
       credentials: "include",
@@ -14,15 +19,13 @@ function TargetingBox({ handleSearchAttempt, handleToggle }) {
         return response.json();
       })
       .then((chars) => {
+        if (!chars.length) {
+          handleSelect();
+        }
         setCharactersLeft(chars);
       })
       .catch((err) => console.err(err));
   }, []);
-
-  function handleSelect(name) {
-    handleSearchAttempt(name);
-    handleToggle();
-  }
 
   return (
     <>
