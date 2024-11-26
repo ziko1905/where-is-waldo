@@ -37,7 +37,6 @@ async function getLeaderboard(size) {
 }
 
 async function createPlayer(name, time) {
-  console.log("ADDED PLY: ", name, time);
   await client.player.create({
     data: {
       name: name,

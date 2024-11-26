@@ -128,7 +128,9 @@ describe("/leaderboard", () => {
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
     const session = await prismaSesStore.get(sid);
-    await prismaSesStore.set(sid, { ...session, time: times.sort()[0] - 100 });
+    session.time = times.sort()[0] - 100;
+    session.hasWon = true;
+    await prismaSesStore.set(sid, session);
 
     const response = await agent
       .post("/leaderboard")
@@ -151,7 +153,9 @@ describe("/leaderboard", () => {
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
     const session = await prismaSesStore.get(sid);
-    await prismaSesStore.set(sid, { ...session, time: times.sort()[2] - 100 });
+    session.time = times.sort()[2] - 100;
+    session.hasWon = true;
+    await prismaSesStore.set(sid, session);
 
     const response = await agent
       .post("/leaderboard")
@@ -174,7 +178,9 @@ describe("/leaderboard", () => {
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
     const session = await prismaSesStore.get(sid);
-    await prismaSesStore.set(sid, { ...session, time: times.sort()[6] - 100 });
+    session.time = times.sort()[6] - 100;
+    session.hasWon = true;
+    await prismaSesStore.set(sid, session);
 
     const response = await agent
       .post("/leaderboard")
@@ -197,7 +203,9 @@ describe("/leaderboard", () => {
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
     const session = await prismaSesStore.get(sid);
-    await prismaSesStore.set(sid, { ...session, time: times.sort()[5] - 100 });
+    session.time = times.sort()[5] - 100;
+    session.hasWon = true;
+    await prismaSesStore.set(sid, session);
 
     const response = await agent
       .post("/leaderboard")
@@ -223,5 +231,19 @@ describe("/leaderboard", () => {
         .send({ name: "Invalid Player 1" })
         .expect(400);
     });
+  });
+
+  it("respond with status code of 400 for session that hasn't got time", async () => {
+    const agent = request.agent(app);
+    const responseInit = await agent.get("/");
+    const sid = convertSID(responseInit.headers["set-cookie"]);
+    const session = await prismaSesStore.get(sid);
+    session.hasWon = true;
+    await prismaSesStore.set(sid, session);
+
+    return agent
+      .post("/leaderboard")
+      .send({ name: "Invalid Player 1" })
+      .expect(400);
   });
 });
