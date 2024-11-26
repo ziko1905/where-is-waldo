@@ -22,7 +22,7 @@ module.exports.validatePostPlayer = asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports.getHasWon = asyncHandler(async (req, res) => {
+module.exports.isSaved = asyncHandler(async (req, res) => {
   const inLeaderboard = !!(await queries.getPlayerBySID(req.sessionID));
-  res.status(200).send({ hasWon: inLeaderboard });
+  res.status(200).send({ isSaved: inLeaderboard });
 });

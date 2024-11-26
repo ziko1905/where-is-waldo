@@ -14,12 +14,13 @@ const markerStyle = {
 function App() {
   const [selectionToggle, setSelectionToggle] = useState(false);
   const [hasWon, setHasWon] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const sendData = useRef({});
   const markerData = useRef({});
   const [markers, setMarkers] = useState([]);
 
   useEffect(() => {
-    fetch(`${config.url.BASE_URL}/leaderboard/won`, {
+    fetch(`${config.url.BASE_URL}/leaderboard/saved`, {
       credentials: "include",
     })
       .then((response) => {
@@ -30,7 +31,7 @@ function App() {
         }
       })
       .then((response) => {
-        if (response.hasWon) setHasWon(true);
+        if (response.hasWon) isSaved(false);
       })
       .catch((err) => {
         console.log(err.message);

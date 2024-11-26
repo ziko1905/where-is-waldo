@@ -277,7 +277,7 @@ describe("/leaderboard", () => {
   });
 
   describe("/leaderboard/won", () => {
-    it("send json with hasWon set to true if player is in lb", async () => {
+    it("send json with isSaved set to true if player is in lb", async () => {
       const agent = request.agent(app);
       const responseInit = await agent.get("/");
       const sid = convertSID(responseInit.headers["set-cookie"]);
@@ -292,14 +292,14 @@ describe("/leaderboard", () => {
       expect(postRes.status).toBe(200);
 
       const response = await agent
-        .get("/leaderboard/won")
+        .get("/leaderboard/saved")
         .set("Accept", "application/json");
 
       expect(response.status).toBe(200);
-      expect(response.body.hasWon).toBe(true);
+      expect(response.body.isSaved).toBe(true);
     });
 
-    it("send json with hasWon set to false if session has hasWon data and not in lb", async () => {
+    it("send json with isSaved set to false if session has hasWon data and not in lb", async () => {
       const agent = request.agent(app);
       const responseInit = await agent.get("/");
       const sid = convertSID(responseInit.headers["set-cookie"]);
@@ -308,11 +308,11 @@ describe("/leaderboard", () => {
       session.time = 12345;
 
       const response = await agent
-        .get("/leaderboard/won")
+        .get("/leaderboard/saved")
         .set("Accept", "application/json");
 
       expect(response.status).toBe(200);
-      expect(response.body.hasWon).toBe(false);
+      expect(response.body.isSaved).toBe(false);
     });
   });
 });
