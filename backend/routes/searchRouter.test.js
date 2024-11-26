@@ -439,7 +439,6 @@ describe("/search", () => {
           })
           .set("Accept", "application/json");
       }
-      await new Promise((resolve) => setTimeout(resolve, 1000));
     });
 
     it("be accepted", () => {
@@ -551,57 +550,6 @@ describe("/search", () => {
       );
 
       expect(data.time).toBe(response.body.time);
-    });
-
-    it("have synced sent and db time", async () => {
-      const sid = convertSID(response.headers["set-cookie"]);
-
-      const time = (
-        await prisma.session.findFirstOrThrow({
-          where: { sid: sid },
-          select: { time: true },
-        })
-      ).time;
-      expect(time).toBe(response.body.time);
-    });
-
-    it("have synced sent and db time (simulating time)", async () => {
-      const agent = request.agent(app);
-      // Creating session
-      let response = await agent.get("");
-      while (defaultCharsNames.length) {
-        const charName = defaultCharsNames.pop();
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1000);
-        });
-
-        response = await agent
-          .post("/search")
-          .send({
-            ...defaultBody,
-            selected: charName,
-            positionX:
-              defaultCorrectGuesses[charName].positionX0 +
-              defaultCorrectGuesses[charName].deltaX / 2,
-            positionY:
-              defaultCorrectGuesses[charName].positionY0 +
-              defaultCorrectGuesses[charName].deltaY / 2,
-          })
-          .set("Accept", "application/json");
-
-        expect(response.status).toBe(defaultCharsNames.length ? 201 : 202);
-      }
-
-      const sid = convertSID(response.headers["set-cookie"]);
-
-      const time = (
-        await prisma.session.findFirstOrThrow({
-          where: { sid: sid },
-          select: { time: true },
-        })
-      ).time;
-
-      expect(time).toBe(response.body.time);
     });
   });
 });

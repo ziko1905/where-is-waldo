@@ -127,16 +127,8 @@ describe("/leaderboard", () => {
     // Initializing session
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
-
-    await prisma.session.update({
-      where: {
-        sid: sid,
-      },
-      data: {
-        username: "Testly Player 1",
-        time: times.sort()[0] - 100,
-      },
-    });
+    const session = await prismaSesStore.get(sid);
+    await prismaSesStore.set(sid, { ...session, time: times.sort()[0] - 100 });
 
     const response = await agent
       .post("/leaderboard")
@@ -158,16 +150,8 @@ describe("/leaderboard", () => {
     // Initializing session
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
-
-    await prisma.session.update({
-      where: {
-        sid: sid,
-      },
-      data: {
-        username: "Testly Player 3",
-        time: times.sort()[2] - 100,
-      },
-    });
+    const session = await prismaSesStore.get(sid);
+    await prismaSesStore.set(sid, { ...session, time: times.sort()[2] - 100 });
 
     const response = await agent
       .post("/leaderboard")
@@ -189,16 +173,8 @@ describe("/leaderboard", () => {
     // Initializing session
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
-
-    await prisma.session.update({
-      where: {
-        sid: sid,
-      },
-      data: {
-        username: "Last Player 3",
-        time: times.sort()[6] - 100,
-      },
-    });
+    const session = await prismaSesStore.get(sid);
+    await prismaSesStore.set(sid, { ...session, time: times.sort()[6] - 100 });
 
     const response = await agent
       .post("/leaderboard")
@@ -220,16 +196,8 @@ describe("/leaderboard", () => {
     // Initializing session
     const responseInit = await agent.get("/");
     const sid = convertSID(responseInit.headers["set-cookie"]);
-
-    await prisma.session.update({
-      where: {
-        sid: sid,
-      },
-      data: {
-        username: "Last Player 4",
-        time: times.sort()[5] - 100,
-      },
-    });
+    const session = await prismaSesStore.get(sid);
+    await prismaSesStore.set(sid, { ...session, time: times.sort()[5] - 100 });
 
     const response = await agent
       .post("/leaderboard")

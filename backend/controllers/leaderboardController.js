@@ -6,10 +6,7 @@ module.exports.getLeaderboard = asyncHandler(async (req, res) => {
 });
 
 module.exports.postLeaderboard = asyncHandler(async (req, res) => {
-  await queries.createPlayer(
-    req.body.name,
-    await queries.getSessionTime(req.sessionID)
-  );
+  await queries.createPlayer(req.body.name, req.session.time);
   res.status(200).send();
 });
 
