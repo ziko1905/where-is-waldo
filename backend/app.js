@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const searchRouter = require("./routes/searchRouter");
+const leaderboardRouter = require("./routes/leaderboardRouter");
 const expressSession = require("express-session");
 const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const { PrismaClient } = require("@prisma/client");
@@ -30,6 +31,7 @@ app.use(
 app.use(initSessionRound);
 
 app.use("/search", searchRouter);
+app.use("/leaderboard", leaderboardRouter);
 
 app.use((err, req, res, next) => {
   console.log(err);

@@ -19,11 +19,8 @@ describe("selection", () => {
   // Mocking get request from backend
   it("renders all unfound characters", async () => {
     render(<TargetingBox />);
-    const charDivs = await screen
-      // Gets divs for testing divs
-      .findAllByTestId("character-left");
+    const charDivs = await screen.findAllByTestId("character-left");
     expect(
-      // Gets and test text elements
       await Promise.all(
         [...charDivs].map((div) =>
           findByLabelText(div, "Character name").then((ele) => ele.textContent)

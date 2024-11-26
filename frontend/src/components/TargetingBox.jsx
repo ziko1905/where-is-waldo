@@ -16,7 +16,7 @@ function TargetingBox({ handleSearchAttempt, handleToggle }) {
       .then((chars) => {
         setCharactersLeft(chars);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.err(err));
   }, []);
 
   function handleSelect(name) {

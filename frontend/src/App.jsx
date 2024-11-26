@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Photo from "./components/Photo";
 import markerSrc from "./assets/cross-mark.svg";
@@ -13,9 +13,29 @@ const markerStyle = {
 
 function App() {
   const [selectionToggle, setSelectionToggle] = useState(false);
+  const [hasWon, setHasWon] = useState(false);
   const sendData = useRef({});
   const markerData = useRef({});
   const [markers, setMarkers] = useState([]);
+
+  useEffect(() => {
+    fetch(`${config.url.BASE_URL}/leaderboard/won`, {
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`${response.status}:${response.statusText}`);
+        } else {
+          return response.json();
+        }
+      })
+      .then((response) => {
+        if (response.hasWon) setHasWon(true);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }, []);
 
   function handlePhotoClick(event) {
     handleTBToggle();
@@ -44,9 +64,13 @@ function App() {
       body: JSON.stringify({ ...sendData.current }),
     }).then(async (res) => {
       if (res.status == 400) {
-        console.log(await res.text());
+        console.error(await res.text());
       } else if (res.status == 201 || res.status == 202) {
         handleMarkerSet(markerData.current);
+      }
+
+      if (res.status == 202) {
+        setHasWon(true);
       }
     });
   }
@@ -88,6 +112,7 @@ function App() {
         }
         marks={markers}
       />
+      {hasWon && console.log("PLAYER HAS WON")}
     </>
   );
 }
