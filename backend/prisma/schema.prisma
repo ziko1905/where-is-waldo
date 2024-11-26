@@ -33,5 +33,6 @@ model Character {
 model Player {
   name   String
   id     String @id @default(uuid())
+  sid    String @unique
   timeMS Int
 }

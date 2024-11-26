@@ -48,7 +48,13 @@ const playersInit = async () => {
 
   for (let i = 0; i < times.length; i++) {
     createPlayers.push(
-      prisma.player.create({ data: { name: `Player ${i}`, timeMS: times[i] } })
+      prisma.player.create({
+        data: {
+          name: `Player ${i}`,
+          timeMS: times[i],
+          sid: crypto.randomUUID(),
+        },
+      })
     );
   }
 
@@ -245,5 +251,27 @@ describe("/leaderboard", () => {
       .post("/leaderboard")
       .send({ name: "Invalid Player 1" })
       .expect(400);
+  });
+
+  it("send a message on post sent from same sid", async () => {
+    const agent = request.agent(app);
+    const responseInit = await agent.get("/");
+    const sid = convertSID(responseInit.headers["set-cookie"]);
+    const session = await prismaSesStore.get(sid);
+    session.hasWon = true;
+    session.time = 12345;
+    await prismaSesStore.set(sid, session);
+
+    const validRes = await agent
+      .post("/leaderboard")
+      .send({ name: "Accepted Player" });
+
+    expect(validRes.status).toBe(200);
+
+    const invalidRes = await agent
+      .post("/leaderboard")
+      .send({ name: "Invalid Player" });
+
+    expect(invalidRes.status).toBe(400);
   });
 });

@@ -36,11 +36,20 @@ async function getLeaderboard(size) {
   });
 }
 
-async function createPlayer(name, time) {
+async function createPlayer(name, time, sid) {
   await client.player.create({
     data: {
       name: name,
       timeMS: time,
+      sid: sid,
+    },
+  });
+}
+
+async function getPlayerBySID(sid) {
+  return await client.player.findFirst({
+    where: {
+      sid: sid,
     },
   });
 }
@@ -51,4 +60,5 @@ module.exports = {
   getPositionData,
   getLeaderboard,
   createPlayer,
+  getPlayerBySID,
 };

@@ -6,12 +6,16 @@ module.exports.getLeaderboard = asyncHandler(async (req, res) => {
 });
 
 module.exports.postLeaderboard = asyncHandler(async (req, res) => {
-  await queries.createPlayer(req.body.name, req.session.time);
+  await queries.createPlayer(req.body.name, req.session.time, req.sessionID);
   res.status(200).send();
 });
 
 module.exports.validatePostPlayer = async (req, res, next) => {
-  if (!req.session.hasWon || !req.session.time) {
+  if (
+    !req.session.hasWon ||
+    !req.session.time ||
+    (await queries.getPlayerBySID(req.sessionID))
+  ) {
     return res.status(400).send();
   }
 
