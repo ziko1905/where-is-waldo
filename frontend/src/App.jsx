@@ -14,7 +14,6 @@ const MARKER_STYLE = {
 
 const useIsSaved = (setIsSaved) => {
   useEffect(() => {
-    console.log("FETCING");
     fetch(`${config.url.BASE_URL}/leaderboard/saved`, {
       credentials: "include",
     })
@@ -36,7 +35,6 @@ const useIsSaved = (setIsSaved) => {
 
 const useHasWon = (setHasWon, setTime) => {
   useEffect(() => {
-    console.log("FETCING hasWon");
     fetch(`${config.url.BASE_URL}/leaderboard/won`, { credentials: "include" })
       .then((response) => {
         if (!response.ok) {
