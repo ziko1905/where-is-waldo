@@ -9,7 +9,7 @@ export default function WonContainer({ isSaved, setIsSaved, sessionTime }) {
 
   useEffect(() => {
     handleLbUpdate();
-  }, []);
+  }, [isSaved]);
 
   function handleLbUpdate() {
     fetch(`${config.url.BASE_URL}/leaderboard`)
