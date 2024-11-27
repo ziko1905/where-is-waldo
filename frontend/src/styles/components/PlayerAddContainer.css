@@ -1,0 +1,41 @@
+#player-add-container {
+  background-color: rgb(199, 0, 0);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  padding: 2rem;
+  font-size: 1.7rem;
+}
+
+#player-add-form {
+  display: grid;
+  gap: 1rem;
+}
+
+#player-add-form input#name {
+  font-family: "Jaro", "Courier New", Courier, monospace;
+  color: red;
+  border: none;
+  margin: 1px;
+
+  font-size: 1em;
+}
+
+#player-add-form button {
+  font: inherit;
+  background-color: white;
+  color: rgb(199, 0, 0);
+  transition: all 0.1s ease-in-out;
+  border: none;
+}
+
+/* rgb(207, 84, 84) */
+#player-add-form button:hover {
+  transition: all 0.1s ease-in-out;
+  background-color: rgb(255, 150, 150);
+  color: white;
+  border-color: white;
+  border: 0px 0px 1px 1px;
+}

@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { config } from "../Constants";
+import "../styles/components/PlayerAddContainer.css";
 
 export default function PlayerAddContainer({ setIsSaved }) {
   const [name, setName] = useState("");
@@ -27,8 +28,9 @@ export default function PlayerAddContainer({ setIsSaved }) {
   }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div id="player-add-container">
+      <span>Add your time to the leaderboard</span>
+      <form id="player-add-form" onSubmit={handleSubmit}>
         <label htmlFor="name">Username: </label>
         <input
           onChange={(e) => setName(e.target.value)}
