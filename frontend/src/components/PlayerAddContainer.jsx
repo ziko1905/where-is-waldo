@@ -9,16 +9,21 @@ export default function PlayerAddContainer({ setIsSaved }) {
     if (!name) return;
     fetch(`${config.url.BASE_URL}/leaderboard`, {
       credentials: "include",
-      method: "post",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ name: name }),
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`${response.statusText}: ${response.status}`);
         }
-        return response.json();
+        setIsSaved(true);
       })
-      .then();
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   return (

@@ -8,14 +8,13 @@ import WonContainer from "./components/WonContainer";
 
 const MARKER_STYLE = {
   position: "fixed",
-  width: "4vw",
+  width: "3vw",
   transform: "translate(-50%, -50%)",
 };
 
-const useIsSaved = () => {
-  const [isSaved, setIsSaved] = useState(false);
-
+const useIsSaved = (setIsSaved) => {
   useEffect(() => {
+    console.log("FETCING");
     fetch(`${config.url.BASE_URL}/leaderboard/saved`, {
       credentials: "include",
     })
@@ -27,20 +26,17 @@ const useIsSaved = () => {
         }
       })
       .then((response) => {
-        if (response.isSaved) setIsSaved(false);
+        setIsSaved(response.isSaved);
       })
       .catch((err) => {
-        console.log(err.message);
+        console.log(err);
       });
   }, []);
-
-  return [isSaved, setIsSaved];
 };
 
-const useHasWon = (setTime) => {
-  const [hasWon, setHasWon] = useState(false);
-
+const useHasWon = (setHasWon, setTime) => {
   useEffect(() => {
+    console.log("FETCING hasWon");
     fetch(`${config.url.BASE_URL}/leaderboard/won`, { credentials: "include" })
       .then((response) => {
         if (!response.ok) {
@@ -56,23 +52,22 @@ const useHasWon = (setTime) => {
         }
       })
       .catch((err) => {
-        console.log(err.message);
+        console.log(err);
       });
   }, []);
-
-  return [hasWon, setHasWon];
 };
 
 function App() {
   const [selectionToggle, setSelectionToggle] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [hasWon, setHasWon] = useState(false);
   const [time, setTime] = useState();
-  const [hasWon, setHasWon] = useHasWon(setTime);
-  const [isSaved, setIsSaved] = useIsSaved();
   const sendData = useRef({});
   const markerData = useRef({});
   const [markers, setMarkers] = useState([]);
 
-  console.log("TIME HERE", time);
+  useIsSaved(setIsSaved);
+  useHasWon(setHasWon, setTime);
 
   function handlePhotoClick(event) {
     if (hasWon) return;
@@ -116,15 +111,17 @@ function App() {
         }
 
         if (res.status == 202) {
-          setHasWon(true);
           return res.json();
         }
       })
       .then((response) => {
-        setTime(response.time);
+        if (response) {
+          setHasWon(true);
+          setTime(response.time);
+        }
       })
       .catch((err) => {
-        console.log(`${err.msg}`);
+        console.log(err);
       });
   }
 

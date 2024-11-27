@@ -14,18 +14,16 @@ export default function WonContainer({ isSaved, setIsSaved, sessionTime }) {
   function handleLbUpdate() {
     fetch(`${config.url.BASE_URL}/leaderboard`)
       .then((response) => {
-        console.log(response);
         if (!response.ok) {
           throw new Error(`${response.status}: ${response.statusText}`);
         }
         return response.json();
       })
       .then((response) => {
-        console.log("RESPONSE", response);
         setLb(response);
       })
       .catch((err) => {
-        console.log(err.msg);
+        console.log(err);
       });
   }
 

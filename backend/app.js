@@ -36,7 +36,7 @@ app.use("/leaderboard", leaderboardRouter);
 app.use((err, req, res, next) => {
   console.log(err);
 
-  req.status(500).send("Internal Server Error");
+  res.status(500).send("Internal Server Error");
 });
 
 const PORT = process.env.PORT || 3000;
