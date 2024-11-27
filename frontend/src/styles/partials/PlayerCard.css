@@ -1,0 +1,22 @@
+.result-card {
+  padding: 0 1rem;
+  display: grid;
+  justify-items: start;
+  align-items: end;
+  grid-template-columns: auto auto 1fr;
+  gap: 0.5em;
+}
+
+.result-position {
+  font-size: 1.3em;
+}
+
+.result-name {
+  margin: 0 0 0.1em 0;
+  justify-self: center;
+}
+
+.result-time {
+  margin: 0 0 0.1em 0;
+  justify-self: end;
+}
