@@ -15,6 +15,7 @@ const MARKER_STYLE = {
 const useIsSaved = (setIsSaved) => {
   useEffect(() => {
     fetch(`${config.url.BASE_URL}/leaderboard/saved`, {
+      mode: "cors",
       credentials: "include",
     })
       .then((response) => {
@@ -35,7 +36,10 @@ const useIsSaved = (setIsSaved) => {
 
 const useHasWon = (setHasWon, setTime) => {
   useEffect(() => {
-    fetch(`${config.url.BASE_URL}/leaderboard/won`, { credentials: "include" })
+    fetch(`${config.url.BASE_URL}/leaderboard/won`, {
+      mode: "cors",
+      credentials: "include",
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`${response.status}:${response.statusText}`);

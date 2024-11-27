@@ -9,6 +9,7 @@ export default function PlayerAddContainer({ setIsSaved }) {
     e.preventDefault();
     if (!name) return;
     fetch(`${config.url.BASE_URL}/leaderboard`, {
+      mode: "cors",
       credentials: "include",
       method: "POST",
       headers: {

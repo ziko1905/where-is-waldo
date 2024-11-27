@@ -14,6 +14,7 @@ function TargetingBox({ handleSearchAttempt, handleToggle }) {
 
   useEffect(() => {
     fetch(`${config.url.BASE_URL}/search`, {
+      mode: "cors",
       credentials: "include",
     })
       .then((response) => {
@@ -25,7 +26,7 @@ function TargetingBox({ handleSearchAttempt, handleToggle }) {
         }
         setCharactersLeft(chars);
       })
-      .catch((err) => console.err(err));
+      .catch((err) => console.error(err));
   }, []);
 
   return (

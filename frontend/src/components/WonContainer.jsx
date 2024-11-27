@@ -12,7 +12,7 @@ export default function WonContainer({ isSaved, setIsSaved, sessionTime }) {
   }, [isSaved]);
 
   function handleLbUpdate() {
-    fetch(`${config.url.BASE_URL}/leaderboard`)
+    fetch(`${config.url.BASE_URL}/leaderboard`, { mode: "cors" })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`${response.status}: ${response.statusText}`);
