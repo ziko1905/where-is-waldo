@@ -1,0 +1,45 @@
+.lb {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  background-color: rgb(255, 150, 150);
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.5rem 2rem 1.5rem 2rem;
+
+  display: grid;
+  gap: 1rem;
+  width: 40%;
+}
+
+#player-time {
+  justify-self: start;
+}
+
+.results {
+  display: grid;
+  gap: 3px;
+  background-color: rgb(170, 46, 46);
+  padding: 7px;
+}
+
+.results div:nth-child(2n - 1) {
+  background-color: rgb(255, 64, 64);
+}
+
+.results div:nth-child(2n) {
+  background-color: rgb(255, 255, 255);
+  color: rgb(255, 64, 64);
+}
+
+#greeting-span {
+  font-size: 2rem;
+}
+
+@media (max-width: 700px) {
+  .lb {
+    width: 80%;
+  }
+}
