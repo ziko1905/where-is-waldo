@@ -7,7 +7,7 @@ import { config } from "./Constants";
 import WonContainer from "./components/WonContainer";
 
 const MARKER_STYLE = {
-  position: "fixed",
+  position: "absolute",
   width: "3vw",
   transform: "translate(-50%, -50%)",
 };
@@ -77,9 +77,10 @@ function App() {
       positionX: event.clientX - positions.x,
       positionY: event.clientY - positions.y,
     };
+
     markerData.current = {
-      positionL: event.clientX,
-      positionT: event.clientY,
+      perX: (sendData.current.positionX / positions.width) * 100,
+      perY: (sendData.current.positionY / positions.height) * 100,
     };
   }
 
@@ -127,12 +128,12 @@ function App() {
     setSelectionToggle(!selectionToggle);
   }
 
-  function handleMarkerSet({ positionL, positionT }) {
+  function handleMarkerSet({ perX, perY }) {
     const currMarkers = [...markers];
     const currMarkerStyle = {
       ...MARKER_STYLE,
-      top: `${positionT}px`,
-      left: `${positionL}px`,
+      top: `${perY}%`,
+      left: `${perX}%`,
     };
     currMarkers.push(
       <img
