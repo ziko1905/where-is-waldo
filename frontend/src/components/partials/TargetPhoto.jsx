@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import "../../styles/partials/TargetPhoto.css";
 
 function TargetPhoto({ target }) {
@@ -9,5 +10,9 @@ function TargetPhoto({ target }) {
     ></img>
   );
 }
+
+TargetPhoto.propTypes = {
+  target: PropTypes.string.isRequired,
+};
 
 export default TargetPhoto;

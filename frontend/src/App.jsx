@@ -3,8 +3,8 @@ import "./App.css";
 import Photo from "./components/Photo";
 import markerSrc from "./assets/cross-mark.svg";
 import TargetingBox from "./components/TargetingBox";
-import Leaderboard from "./components/Leaderboard";
 import { config } from "./Constants";
+import WonContainer from "./components/WonContainer";
 
 const markerStyle = {
   position: "fixed",
@@ -78,7 +78,7 @@ function App() {
       }
 
       if (res.status == 202) {
-        if (hasWon) setHasWon(true);
+        setHasWon(true);
       }
     });
   }
@@ -120,7 +120,7 @@ function App() {
         }
         marks={markers}
       />
-      {hasWon && <Leaderboard />}
+      {hasWon && <WonContainer isSaved={isSaved} />}
     </>
   );
 }

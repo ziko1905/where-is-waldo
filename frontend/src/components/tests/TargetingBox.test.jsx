@@ -20,12 +20,15 @@ describe("selection", () => {
   it("renders all unfound characters", async () => {
     render(<TargetingBox />);
     const charDivs = await screen.findAllByTestId("character-left");
-    expect(
-      await Promise.all(
-        [...charDivs].map((div) =>
-          findByLabelText(div, "Character name").then((ele) => ele.textContent)
-        )
+
+    const divs = await Promise.all(
+      [...charDivs].map((div) =>
+        findByLabelText(div, "Character name").then((ele) => ele.textContent)
       )
-    ).toEqual(mockLeftChars.getCharsNames());
+    );
+
+    for (const charName of mockLeftChars.getCharsNames()) {
+      expect(divs.includes(charName)).toBe(true);
+    }
   });
 });

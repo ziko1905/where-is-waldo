@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import waldoImg from "../assets/waldo-1.webp";
 import "../styles/components/Photo.css";
 
@@ -16,5 +17,11 @@ function Photo({ handleClick, targetingBox, marks }) {
     </>
   );
 }
+
+Photo.propTypes = {
+  handleClick: PropTypes.func.isRequired,
+  targetingBox: PropTypes.oneOfType([PropTypes.bool, PropTypes.element]),
+  marks: PropTypes.arrayOf(PropTypes.element),
+};
 
 export default Photo;

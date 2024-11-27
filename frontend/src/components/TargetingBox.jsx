@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { config } from "../Constants";
 import "../styles/components/TargetingBox.css";
 import TargetPhoto from "./partials/TargetPhoto";
+import PropTypes from "prop-types";
 
 function TargetingBox({ handleSearchAttempt, handleToggle }) {
   const [charactersLeft, setCharactersLeft] = useState([]);
@@ -54,5 +55,10 @@ function TargetingBox({ handleSearchAttempt, handleToggle }) {
     </>
   );
 }
+
+TargetingBox.propTypes = {
+  handleSearchAttempt: PropTypes.func.isRequired,
+  handleToggle: PropTypes.func.isRequired,
+};
 
 export default TargetingBox;
