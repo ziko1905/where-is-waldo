@@ -25,18 +25,58 @@ const characters = [
   },
 ];
 
+const players = [
+  // sids are random, created manually, only to prevent duplicates
+  {
+    name: "Default Player 1",
+    timeMS: 1000000,
+    sid: "8aaa55ea-ac55-42e2-98a6-37e341baeeb5",
+  },
+  {
+    name: "Default Player 2",
+    timeMS: 905300,
+    sid: "63e7e450-5c5a-4154-9be5-702c2df3c095",
+  },
+  {
+    name: "Default Player 3",
+    timeMS: 1023010,
+    sid: "c290ec6b-8256-4554-ba4d-14ee7b70ead6",
+  },
+  {
+    name: "Default Player 4",
+    timeMS: 12311121,
+    sid: "cb11c11d-ce74-4d74-b837-e2fa4f2296e8",
+  },
+];
+
 async function main() {
-  for (char of characters) {
-    await client.character.upsert({
-      where: {
-        name: char.name,
-      },
-      update: {},
-      create: {
-        ...char,
-      },
-    });
+  const promises = [];
+
+  for (const char of characters) {
+    promises.push(
+      client.character.upsert({
+        where: {
+          name: char.name,
+        },
+        update: {},
+        create: {
+          ...char,
+        },
+      })
+    );
   }
+
+  for (const ply of players) {
+    promises.push(
+      client.player.upsert({
+        where: { sid: ply.sid },
+        update: {},
+        create: { ...ply },
+      })
+    );
+  }
+
+  await Promise.all(promises);
 }
 
 main()
