@@ -4,7 +4,7 @@ import Leaderboard from "./Leaderboard";
 import PlayerAddContainer from "./PlayerAddContainer";
 import PropTypes from "prop-types";
 
-export default function WonContainer({ isSaved }) {
+export default function WonContainer({ isSaved, setIsSaved, sessionTime }) {
   const [lb, setLb] = useState([]);
 
   useEffect(() => {
@@ -31,12 +31,16 @@ export default function WonContainer({ isSaved }) {
 
   return (
     <>
-      <Leaderboard lb={lb} />
-      {!isSaved && <PlayerAddContainer callback={handleLbUpdate} />}
+      <Leaderboard lb={lb} sessionTime={sessionTime} />
+      {!isSaved && (
+        <PlayerAddContainer callback={handleLbUpdate} setIsSaved={setIsSaved} />
+      )}
     </>
   );
 }
 
 WonContainer.propTypes = {
   isSaved: PropTypes.bool.isRequired,
+  setIsSaved: PropTypes.func.isRequired,
+  sessionTime: PropTypes.number.isRequired,
 };

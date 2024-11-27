@@ -6,19 +6,14 @@ import TargetingBox from "./components/TargetingBox";
 import { config } from "./Constants";
 import WonContainer from "./components/WonContainer";
 
-const markerStyle = {
+const MARKER_STYLE = {
   position: "fixed",
-  width: "5vw",
+  width: "4vw",
   transform: "translate(-50%, -50%)",
 };
 
-function App() {
-  const [selectionToggle, setSelectionToggle] = useState(false);
-  const [hasWon, setHasWon] = useState(false);
+const useIsSaved = () => {
   const [isSaved, setIsSaved] = useState(false);
-  const sendData = useRef({});
-  const markerData = useRef({});
-  const [markers, setMarkers] = useState([]);
 
   useEffect(() => {
     fetch(`${config.url.BASE_URL}/leaderboard/saved`, {
@@ -38,6 +33,46 @@ function App() {
         console.log(err.message);
       });
   }, []);
+
+  return [isSaved, setIsSaved];
+};
+
+const useHasWon = (setTime) => {
+  const [hasWon, setHasWon] = useState(false);
+
+  useEffect(() => {
+    fetch(`${config.url.BASE_URL}/leaderboard/won`, { credentials: "include" })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`${response.status}:${response.statusText}`);
+        } else {
+          return response.json();
+        }
+      })
+      .then((response) => {
+        if (response.hasWon) {
+          setHasWon(response.hasWon);
+          setTime(response.time);
+        }
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }, []);
+
+  return [hasWon, setHasWon];
+};
+
+function App() {
+  const [selectionToggle, setSelectionToggle] = useState(false);
+  const [time, setTime] = useState();
+  const [hasWon, setHasWon] = useHasWon(setTime);
+  const [isSaved, setIsSaved] = useIsSaved();
+  const sendData = useRef({});
+  const markerData = useRef({});
+  const [markers, setMarkers] = useState([]);
+
+  console.log("TIME HERE", time);
 
   function handlePhotoClick(event) {
     if (hasWon) return;
@@ -70,17 +105,27 @@ function App() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ ...sendData.current }),
-    }).then(async (res) => {
-      if (res.status == 400) {
-        console.error(await res.text());
-      } else if (res.status == 201 || res.status == 202) {
-        handleMarkerSet(markerData.current);
-      }
+    })
+      .then(async (res) => {
+        if (res.status == 400) {
+          throw new Error(
+            `${res.text() ? res.text() : res.statusText}: ${res.status}`
+          );
+        } else if (res.status == 201 || res.status == 202) {
+          handleMarkerSet(markerData.current);
+        }
 
-      if (res.status == 202) {
-        setHasWon(true);
-      }
-    });
+        if (res.status == 202) {
+          setHasWon(true);
+          return res.json();
+        }
+      })
+      .then((response) => {
+        setTime(response.time);
+      })
+      .catch((err) => {
+        console.log(`${err.msg}`);
+      });
   }
 
   function handleTBToggle() {
@@ -90,7 +135,7 @@ function App() {
   function handleMarkerSet({ positionL, positionT }) {
     const currMarkers = [...markers];
     const currMarkerStyle = {
-      ...markerStyle,
+      ...MARKER_STYLE,
       top: `${positionT}px`,
       left: `${positionL}px`,
     };
@@ -120,7 +165,13 @@ function App() {
         }
         marks={markers}
       />
-      {hasWon && <WonContainer isSaved={isSaved} />}
+      {hasWon && (
+        <WonContainer
+          isSaved={isSaved}
+          setIsSaved={setIsSaved}
+          sessionTime={time}
+        />
+      )}
     </>
   );
 }

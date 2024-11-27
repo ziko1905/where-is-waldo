@@ -28,5 +28,11 @@ module.exports.isSaved = asyncHandler(async (req, res) => {
 });
 
 module.exports.hasWon = asyncHandler(async (req, res) => {
-  return res.status(200).send({ hasWon: !!req.session.hasWon });
+  if (req.session.hasWon && !req.session.time) {
+    return res.status(400).send();
+  }
+
+  res
+    .status(200)
+    .send({ hasWon: !!req.session.hasWon, time: req.session.time });
 });

@@ -343,5 +343,50 @@ describe("/leaderboard", () => {
       expect(response.status).toBe(200);
       expect(response.body.hasWon).toBe(false);
     });
+
+    it("send json with time if session hasWon data is set to true", async () => {
+      const agent = request.agent(app);
+      const responseInit = await agent.get("/");
+      const sid = convertSID(responseInit.headers["set-cookie"]);
+      const session = await prismaSesStore.get(sid);
+      session.hasWon = true;
+      session.time = 12345;
+      await prismaSesStore.set(sid, session);
+
+      const response = await agent
+        .get("/leaderboard/won")
+        .set("Accept", "application/json");
+
+      expect(response.status).toBe(200);
+      expect(response.body.hasWon).toBe(true);
+      expect(response.body.time).toBe(12345);
+    });
+
+    it("not send json with time if session hasWon data is set to false", async () => {
+      const agent = request.agent(app);
+
+      const response = await agent
+        .get("/leaderboard/won")
+        .set("Accept", "application/json");
+
+      expect(response.status).toBe(200);
+      expect(response.body.hasWon).toBe(false);
+      expect(response.body.time).toBeUndefined();
+    });
+
+    it("send bad request if hasWon is set to true but no session time is present", async () => {
+      const agent = request.agent(app);
+      const responseInit = await agent.get("/");
+      const sid = convertSID(responseInit.headers["set-cookie"]);
+      const session = await prismaSesStore.get(sid);
+      session.hasWon = true;
+      await prismaSesStore.set(sid, session);
+
+      const response = await agent
+        .get("/leaderboard/won")
+        .set("Accept", "application/json");
+
+      expect(response.status).toBe(400);
+    });
   });
 });
