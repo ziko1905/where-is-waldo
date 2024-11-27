@@ -9,5 +9,6 @@ router.post(
   leaderboardController.postLeaderboard
 );
 router.get("/saved", leaderboardController.isSaved);
+router.get("/won", leaderboardController.hasWon);
 
 module.exports = router;

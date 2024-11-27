@@ -26,3 +26,7 @@ module.exports.isSaved = asyncHandler(async (req, res) => {
   const inLeaderboard = !!(await queries.getPlayerBySID(req.sessionID));
   res.status(200).send({ isSaved: inLeaderboard });
 });
+
+module.exports.hasWon = asyncHandler(async (req, res) => {
+  return res.status(200).send({ hasWon: !!req.session.hasWon });
+});

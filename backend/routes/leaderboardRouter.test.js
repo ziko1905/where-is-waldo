@@ -306,6 +306,7 @@ describe("/leaderboard", () => {
       const session = await prismaSesStore.get(sid);
       session.hasWon = true;
       session.time = 12345;
+      await prismaSesStore.set(sid, session);
 
       const response = await agent
         .get("/leaderboard/saved")
@@ -313,6 +314,34 @@ describe("/leaderboard", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.isSaved).toBe(false);
+    });
+
+    it("send json with hasWon set to true if session has hasWon data set to true", async () => {
+      const agent = request.agent(app);
+      const responseInit = await agent.get("/");
+      const sid = convertSID(responseInit.headers["set-cookie"]);
+      const session = await prismaSesStore.get(sid);
+      session.hasWon = true;
+      session.time = 12345;
+      await prismaSesStore.set(sid, session);
+
+      const response = await agent
+        .get("/leaderboard/won")
+        .set("Accept", "application/json");
+
+      expect(response.status).toBe(200);
+      expect(response.body.hasWon).toBe(true);
+    });
+
+    it("send json with hasWon set to false if session has hasWon data set to false", async () => {
+      const agent = request.agent(app);
+
+      const response = await agent
+        .get("/leaderboard/won")
+        .set("Accept", "application/json");
+
+      expect(response.status).toBe(200);
+      expect(response.body.hasWon).toBe(false);
     });
   });
 });

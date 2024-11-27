@@ -66,14 +66,16 @@ async function main() {
     );
   }
 
-  for (const ply of players) {
-    promises.push(
-      client.player.upsert({
-        where: { sid: ply.sid },
-        update: {},
-        create: { ...ply },
-      })
-    );
+  if (process.env.MODE == "development") {
+    for (const ply of players) {
+      promises.push(
+        client.player.upsert({
+          where: { sid: ply.sid },
+          update: {},
+          create: { ...ply },
+        })
+      );
+    }
   }
 
   await Promise.all(promises);
