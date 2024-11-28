@@ -10,8 +10,8 @@
     "docker:down": "docker compose down",
     "test:only": "jest -i",
     "test": "npm run docker:up && dotenv -e .env.test npx prisma migrate deploy && dotenv -e .env.test npm run test:only",
-    "build": "npx prisma migrate deploy && npx prisma db seed",
-    "start": "npx prisma generate && node ./app.js"
+    "build": "npx prisma migrate deploy && npx prisma generate && npx prisma db seed",
+    "start": "node ./app.js"
   },
   "keywords": [],
   "author": "",
