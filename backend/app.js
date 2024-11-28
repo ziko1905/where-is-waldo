@@ -13,22 +13,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors(corsConfig));
 
-app.use(
-  expressSession({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 2,
-      secure: process.env.NODE_ENV === "production",
-    },
-    store: new PrismaSessionStore(new PrismaClient(), {
-      checkPeriod: 2 * 60 * 1000,
-      dbRecordIdIsSessionId: true,
-      dbRecordIdFunction: undefined,
-    }),
-  })
-);
+const sess = {
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 2,
+  },
+  store: new PrismaSessionStore(new PrismaClient(), {
+    checkPeriod: 2 * 60 * 1000,
+    dbRecordIdIsSessionId: true,
+    dbRecordIdFunction: undefined,
+  }),
+};
+
+if (process.env.NODE_ENV === "production") {
+  sess.cookie.secure = true;
+  app.set("trust proxy", 1);
+}
+
+app.use(expressSession(sess));
 app.use(initSessionRound);
 
 app.use("/search", searchRouter);
